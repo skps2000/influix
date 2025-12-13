@@ -15,7 +15,8 @@
     "build:packages": "npm run build -w @influix/types -w @influix/config -w @influix/ui -w @influix/ai",
     "clean": "rimraf apps/*/dist packages/*/dist",
     "lint": "eslint . --ext .ts,.tsx",
-    "typecheck": "tsc --noEmit -p apps/web/tsconfig.json && tsc --noEmit -p apps/api/tsconfig.json"
+    "typecheck": "tsc --noEmit -p apps/web/tsconfig.json && tsc --noEmit -p apps/api/tsconfig.json",
+    "deploy": "echo \"Cloudflare Pages deploy step (no-op)\""
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
