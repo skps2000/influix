@@ -1,0 +1,29 @@
+{
+  "name": "@influix/config",
+  "version": "0.1.0",
+  "description": "Shared configuration for InfluiX",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./eslint": {
+      "import": "./eslint.config.js",
+      "require": "./eslint.config.js"
+    },
+    "./tailwind": {
+      "import": "./tailwind.config.js",
+      "require": "./tailwind.config.js"
+    }
+  },
+  "scripts": {
+    "build": "npx -p typescript tsc",
+    "dev": "npx -p typescript tsc --watch"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0"
+  }
+}

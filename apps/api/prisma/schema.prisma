@@ -1,0 +1,256 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// User & Authentication
+// ============================================
+
+model User {
+  id            String    @id @default(uuid()) @db.Uuid
+  email         String    @unique
+  name          String
+  passwordHash  String    @map("password_hash")
+  avatarUrl     String?   @map("avatar_url")
+  role          UserRole  @default(MEMBER)
+  preferences   Json      @default("{}")
+  lastLoginAt   DateTime? @map("last_login_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  workspacesOwned   Workspace[]       @relation("WorkspaceOwner")
+  workspaceMemberships WorkspaceMember[]
+  content           Content[]
+  notes             Note[]
+  refreshTokens     RefreshToken[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  token     String   @unique
+  userId    String   @map("user_id") @db.Uuid
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+// ============================================
+// Workspace
+// ============================================
+
+model Workspace {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String
+  slug        String   @unique
+  description String?
+  ownerId     String   @map("owner_id") @db.Uuid
+  settings    Json     @default("{}")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  owner   User              @relation("WorkspaceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members WorkspaceMember[]
+  content Content[]
+  insights Insight[]
+  notes   Note[]
+
+  @@map("workspaces")
+}
+
+model WorkspaceMember {
+  id          String              @id @default(uuid()) @db.Uuid
+  workspaceId String              @map("workspace_id") @db.Uuid
+  userId      String              @map("user_id") @db.Uuid
+  role        WorkspaceMemberRole @default(VIEWER)
+  invitedBy   String?             @map("invited_by") @db.Uuid
+  createdAt   DateTime            @default(now()) @map("created_at")
+  updatedAt   DateTime            @updatedAt @map("updated_at")
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+  @@map("workspace_members")
+}
+
+enum WorkspaceMemberRole {
+  OWNER
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+// ============================================
+// Content
+// ============================================
+
+model Content {
+  id             String         @id @default(uuid()) @db.Uuid
+  workspaceId    String         @map("workspace_id") @db.Uuid
+  createdById    String         @map("created_by") @db.Uuid
+  title          String
+  sourceUrl      String?        @map("source_url")
+  sourceType     ContentSourceType @map("source_type")
+  platform       ContentPlatform
+  metadata       Json           @default("{}")
+  transcript     String?        @db.Text
+  status         ContentStatus  @default(PENDING)
+  lastAnalyzedAt DateTime?      @map("last_analyzed_at")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  // Relations
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdBy User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  insights  Insight[]
+  notes     Note[]
+
+  @@index([workspaceId])
+  @@index([createdById])
+  @@index([platform])
+  @@index([status])
+  @@map("content")
+}
+
+enum ContentSourceType {
+  VIDEO
+  IMAGE
+  TEXT
+  AUDIO
+  MIXED
+}
+
+enum ContentPlatform {
+  YOUTUBE
+  TIKTOK
+  INSTAGRAM
+  TWITTER
+  LINKEDIN
+  OTHER
+}
+
+enum ContentStatus {
+  PENDING
+  ANALYZING
+  ANALYZED
+  FAILED
+}
+
+// ============================================
+// AI Insights
+// ============================================
+
+model Insight {
+  id            String        @id @default(uuid()) @db.Uuid
+  contentId     String        @map("content_id") @db.Uuid
+  workspaceId   String        @map("workspace_id") @db.Uuid
+  promptId      String        @map("prompt_id") @db.Uuid
+  promptVersion Int           @map("prompt_version")
+  analysis      Json
+  confidence    Float         @default(0)
+  status        InsightStatus @default(GENERATING)
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  // Relations
+  content   Content    @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  workspace Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  prompt    AIPrompt   @relation(fields: [promptId], references: [id])
+  notes     Note[]
+
+  @@index([contentId])
+  @@index([workspaceId])
+  @@map("insights")
+}
+
+enum InsightStatus {
+  GENERATING
+  COMPLETE
+  FAILED
+  STALE
+}
+
+// ============================================
+// AI Prompts
+// ============================================
+
+model AIPrompt {
+  id          String         @id @default(uuid()) @db.Uuid
+  name        String
+  slug        String         @unique
+  description String
+  version     Int            @default(1)
+  isActive    Boolean        @default(true) @map("is_active")
+  isDefault   Boolean        @default(false) @map("is_default")
+  category    PromptCategory
+  template    Json
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+
+  // Relations
+  insights Insight[]
+
+  @@index([category])
+  @@index([isActive])
+  @@map("ai_prompts")
+}
+
+enum PromptCategory {
+  CONTENT_ANALYSIS
+  HOOK_DETECTION
+  TONE_ANALYSIS
+  NARRATIVE_STRUCTURE
+  ENGAGEMENT_LOGIC
+  COMPARISON
+  CUSTOM
+}
+
+// ============================================
+// Notes (Thinking Layer)
+// ============================================
+
+model Note {
+  id          String   @id @default(uuid()) @db.Uuid
+  workspaceId String   @map("workspace_id") @db.Uuid
+  createdById String   @map("created_by") @db.Uuid
+  title       String
+  content     String   @db.Text
+  contentId   String?  @map("content_id") @db.Uuid
+  insightId   String?  @map("insight_id") @db.Uuid
+  tags        String[] @default([])
+  isArchived  Boolean  @default(false) @map("is_archived")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  workspace     Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdBy     User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  linkedContent Content?  @relation(fields: [contentId], references: [id], onDelete: SetNull)
+  linkedInsight Insight?  @relation(fields: [insightId], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId])
+  @@index([createdById])
+  @@index([isArchived])
+  @@map("notes")
+}
