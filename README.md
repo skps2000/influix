@@ -76,6 +76,7 @@ npm run lint          # Lint all files
 npm run typecheck     # TypeScript checks
 ```
 
+
 ## 🔑 Environment Variables
 
 | Variable | Description | Required |
