@@ -11,7 +11,7 @@
     "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
     "dev:api": "npm run dev -w @influix/api",
     "dev:web": "npm run dev -w @influix/web",
-    "build": "npm run build -ws",
+    "build": "npm run build:packages && npm run build -w @influix/api -w @influix/web",
     "build:packages": "npm run build -w @influix/types -w @influix/config -w @influix/ui -w @influix/ai",
     "clean": "rimraf apps/*/dist packages/*/dist",
     "lint": "eslint . --ext .ts,.tsx",
