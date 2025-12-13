@@ -1,5 +1,6 @@
 import { Router, Response, NextFunction } from 'express';
 import { authenticate, AuthenticatedRequest } from '../middleware/auth';
+import type { Insight } from '@influix/types';
 
 export const dashboardRouter = Router();
 
@@ -46,7 +47,7 @@ dashboardRouter.get('/', async (req: AuthenticatedRequest, res: Response, next: 
 dashboardRouter.get('/insights', async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
     // AI-generated insights that explain "why" things work
-    const insights = [];
+    const insights: Insight[] = [];
 
     res.json({
       success: true,

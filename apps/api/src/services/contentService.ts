@@ -26,7 +26,7 @@ export const contentService = {
         sourceUrl: input.sourceUrl,
         sourceType: input.sourceType.toUpperCase() as any,
         platform: input.platform.toUpperCase() as any,
-        metadata: input.metadata || {},
+        metadata: (input.metadata || {}) as any,
         status: 'PENDING',
       },
     });
@@ -78,7 +78,7 @@ export const contentService = {
       where: { id },
       data: {
         title: input.title,
-        metadata: input.metadata,
+        metadata: input.metadata as any,
         status: input.status?.toUpperCase() as any,
       },
     });

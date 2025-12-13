@@ -66,13 +66,13 @@ export const userService = {
 
     if (!existingUser) return null;
 
-    const currentPrefs = existingUser.preferences as UserPreferences;
+    const currentPrefs = (existingUser.preferences as any) as UserPreferences;
     const updatedPrefs = { ...currentPrefs, ...preferences };
 
     const user = await prisma.user.update({
       where: { id },
       data: {
-        preferences: updatedPrefs,
+        preferences: updatedPrefs as any,
       },
     });
 

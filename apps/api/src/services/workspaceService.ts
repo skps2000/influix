@@ -81,7 +81,7 @@ export const workspaceService = {
       },
     });
 
-    return memberships.map((m) => ({
+    return memberships.map((m: any) => ({
       ...mapPrismaWorkspaceToWorkspace(m.workspace),
       role: m.role.toLowerCase(),
     }));
