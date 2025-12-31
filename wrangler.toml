@@ -1,0 +1,22 @@
+name = "influix"
+type = "javascript"
+account_id = ""
+workers_dev = true
+main = "api/index.js"
+compatibility_date = "2025-10-08"
+compatibility_flags = ["nodejs_compat"]
+
+[observability]
+enabled = true
+
+[build]
+command = "npm run build"
+cwd = "./"
+watch_paths = ["src/**", "apps/**", "packages/**"]
+
+[env.production]
+vars = { JWT_SECRET = "set-in-dashboard" }
+
+[[env.production.hyperdrive]]
+binding = "HYPERDRIVE"
+id = "YOUR_HYPERDRIVE_ID_HERE"
