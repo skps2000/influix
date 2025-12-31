@@ -6,6 +6,12 @@ import { api } from '../lib/api';
 // Development mode - set to false to enable authentication
 const DEV_MODE = true;
 
+const getDEV_TOKENS = (): AuthTokens => ({
+  accessToken: 'dev-token',
+  refreshToken: 'dev-refresh-token',
+  expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+});
+
 const DEV_USER: User = {
   id: 'dev-user-123',
   email: 'dev@example.com',
@@ -39,7 +45,7 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
       user: DEV_MODE ? DEV_USER : null,
-      tokens: DEV_MODE ? { accessToken: 'dev-token', refreshToken: 'dev-refresh-token' } : null,
+      tokens: DEV_MODE ? getDEV_TOKENS() : null,
       isAuthenticated: DEV_MODE ? true : false,
       isLoading: false,
 
@@ -90,7 +96,7 @@ export const useAuthStore = create<AuthState>()(
       devLogin: () => {
         set({
           user: DEV_USER,
-          tokens: { accessToken: 'dev-token', refreshToken: 'dev-refresh-token' },
+          tokens: getDEV_TOKENS(),
           isAuthenticated: true,
           isLoading: false,
         });
