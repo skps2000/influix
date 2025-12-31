@@ -23,7 +23,7 @@ export function DashboardPage() {
           {greeting}, {user?.name?.split(' ')[0] || 'there'}
         </Heading>
         <Text muted className="mt-1">
-          Here's what matters today
+          Here's what matters today [DEPLOYMENT TEST - 2025-12-31 06:30]
         </Text>
       </div>
 
