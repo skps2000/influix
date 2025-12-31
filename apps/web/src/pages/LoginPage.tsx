@@ -3,9 +3,11 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { Button, Input, Card } from '@influix/ui';
 
+const DEV_MODE = true;
+
 export function LoginPage() {
   const navigate = useNavigate();
-  const { login, register, isLoading } = useAuthStore();
+  const { login, register, isLoading, devLogin } = useAuthStore();
   
   const [isRegister, setIsRegister] = useState(false);
   const [email, setEmail] = useState('');
@@ -28,6 +30,11 @@ export function LoginPage() {
     } catch (err: any) {
       setError(err.response?.data?.error?.message || 'An error occurred');
     }
+  };
+
+  const handleDemoLogin = () => {
+    devLogin();
+    navigate('/dashboard');
   };
 
   return (
@@ -89,6 +96,17 @@ export function LoginPage() {
         >
           {isRegister ? 'Create account' : 'Sign in'}
         </Button>
+
+        {DEV_MODE && (
+          <Button
+            type="button"
+            onClick={handleDemoLogin}
+            className="w-full"
+            variant="secondary"
+          >
+            🚀 Demo Login
+          </Button>
+        )}
 
         <div className="text-center">
           <button
