@@ -90,6 +90,3 @@ npm run typecheck     # TypeScript checks
 ## 📄 License
 
 Private - All rights reserved
-
-
-
