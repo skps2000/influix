@@ -15,7 +15,7 @@
     "build": "npm run build:packages && npm run build:web",
     "build:web": "npm run build -w @influix/web",
     "build:packages": "npm run build -w @influix/types -w @influix/config -w @influix/ui -w @influix/ai",
-    "deploy": "wrangler deploy",
+    "deploy": "npm run build",
     "clean": "rimraf apps/*/dist packages/*/dist",
     "lint": "eslint . --ext .ts,.tsx",
     "typecheck": "tsc --noEmit -p apps/web/tsconfig.json && tsc --noEmit -p apps/api/tsconfig.json"
